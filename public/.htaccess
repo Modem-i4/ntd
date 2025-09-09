@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# 1) Фізичні файли/теки віддаємо як є
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2) Виняток: усе під /game/ не йде у PHP-роутер
+RewriteRule ^game/ - [L]
+
+# 3) У роутер — лише шлях БЕЗ розширення (тобто сторінки типу /about, /contact)
+RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]{2,5}$
+RewriteRule ^ index.php [L]
