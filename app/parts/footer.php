@@ -15,18 +15,22 @@
           +380731392642
         </a>
       </div>
-
-      <div class="md:text-right text-center">
-        <div class="font-extrabold text-3xl md:text-lg">Слідкуй за нами!</div>
-        <div class="mt-4 md:mt-3 flex md:justify-end justify-center gap-6 md:gap-4">
-          <a href="https://facebook.com" target="_blank" aria-label="Facebook" class="grid place-items-center rounded-full bg-white/10 hover:bg-white/20 transition h-12 w-12 md:h-9 md:w-9">
-            <img src="/assets/fb-white.svg" alt="facebook"/>
-          </a>
-          <a href="https://instagram.com" target="_blank" aria-label="Instagram" class="grid place-items-center rounded-[28%] bg-white/10 hover:bg-white/20 transition h-12 w-12 md:h-9 md:w-9">
-            <img src="/assets/insta.svg" alt="instagram"/>
-          </a>
+      <div class="flex justify-end">
+        <div class="text-center">
+          <div class="font-extrabold text-3xl md:text-lg">Слідкуй за нами!</div>
+          <div class="mt-4 md:mt-3 flex justify-center gap-6 md:gap-4">
+            <a href="https://facebook.com" target="_blank" aria-label="Facebook"
+              class="grid place-items-center rounded-full bg-white/10 hover:bg-white/20 transition h-12 w-12 md:h-9 md:w-9">
+              <img src="/assets/fb-white.svg" alt="facebook"/>
+            </a>
+            <a href="https://www.instagram.com/nova.tradition/" target="_blank" aria-label="Instagram"
+              class="grid place-items-center rounded-[28%] bg-white/10 hover:bg-white/20 transition h-12 w-12 md:h-9 md:w-9">
+              <img src="/assets/insta.svg" alt="instagram"/>
+            </a>
+          </div>
         </div>
       </div>
+
     </div>
 
     <div class="pb-10 md:pb-6">

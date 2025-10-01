@@ -8,7 +8,7 @@
       <nav class="hidden md:flex items-center gap-10 text-white font-semibold text-xl">
         <a href="/" class="hover:opacity-90">ГОЛОВНА</a>
         <a href="/game" class="hover:opacity-90" target="_blank">ДО ГРИ!</a>
-        <a href="/" class="hover:opacity-90">МЕТОДИЧНІ РЕКОМЕНДАЦІЇ</a>
+        <a href="/training" class="hover:opacity-90">СТВОРЕННЯ СЦЕНАРІЮ</a>
       </nav>
       <button id="nav-toggle"
           class="md:hidden relative h-9 w-9 grid place-items-center rounded-md
@@ -31,7 +31,7 @@
       <ul class="flex flex-col gap-2 text-white text-lg font-semibold">
         <li><a class="block py-2" href="/">ГОЛОВНА</a></li>
         <li><a class="block py-2" href="/game" target="_blank">ДО ГРИ!</a></li>
-        <li><a class="block py-2" href="/">МЕТОДИЧНІ РЕКОМЕНДАЦІЇ</a></li>
+        <li><a class="block py-2" href="/training">СТВОРЕННЯ СЦЕНАРІЮ</a></li>
       </ul>
     </nav>
   </div>

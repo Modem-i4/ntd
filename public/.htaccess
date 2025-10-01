@@ -1,13 +1,21 @@
 RewriteEngine On
+RewriteBase /
+
+# 0) На всяк випадок вимкнути MultiViews, щоб не було "контент-неготіації"
+Options -MultiViews
 
 # 1) Фізичні файли/теки віддаємо як є
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 2) Виняток: усе під /game/ не йде у PHP-роутер
-RewriteRule ^game/ - [L]
+# 2) Винятки: не чіпати ці шляхи
+#    (phpmyadmin, xampp dashboard, твій /game)
+RewriteRule ^game(/.*)?$ - [L,NC]
 
-# 3) У роутер — лише шлях БЕЗ розширення (тобто сторінки типу /about, /contact)
-RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]{2,5}$
+# 2a) API: усе під /api -> api.php (у корені public)
+RewriteRule ^api(?:/.*)?$ api.php [L,QSA,NC]
+
+# 3) У роутер — тільки запити без розширення
+RewriteCond %{REQUEST_URI} !\.[a-z0-9]{2,5}$ [NC]
 RewriteRule ^ index.php [L]

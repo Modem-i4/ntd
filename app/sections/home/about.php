@@ -5,9 +5,14 @@
         <div class="relative origin-left -ml-[33%] md:-ml-[25%] scale-[1.4] 
            md:scale-[1.3] select-none w-full md:max-w-[620px] aspect-square">
           <img
-            src="/assets/circle-guy.svg"
+            src="/assets/circle-bg.svg"
             alt=""
-            loading="lazy"
+            class="absolute inset-0 w-full h-full"
+          />
+          <img
+            src="/assets/circle-guy.webp"
+            alt=""
+            class="absolute inset-0 h-full mx-auto"
           />
 
           <div class="absolute inset-0">
@@ -18,8 +23,7 @@
             <!-- ЧЕРВОНА КРАПКА (угорі) -->
             <img src="/assets/decor/red-dot.png" alt="" aria-hidden="true"
                 class="abs-center left-[58%] top-[13%] w-[7%] 
-                animate-floaty-rotate [animation-delay:2s]
-                " />
+                animate-floaty-rotate [animation-delay:2s]" />
             <!-- ГЛИНЯНИЙ ГЛЕЧИК (праворуч) -->
             <img src="/assets/decor/pot.png" alt="" aria-hidden="true"
                 class="abs-center left-[80%] top-[34%] w-[11%] drop-shadow-md
