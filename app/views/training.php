@@ -30,6 +30,7 @@ $categories = [
     ],
   ],
 ];
+$heroTitle = "Тренінг зі створення сценарію для гри «Нова Традиція»"
 ?>
 <?php require __DIR__ . '/../parts/hero.php'; ?>
 <main class="grow">

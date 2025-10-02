@@ -299,29 +299,39 @@ INSERT INTO `reasons` (`scenario_slug`, `sur_n`, `number`, `option_text`) VALUES
 ('orsha', 3, 3, 'Завдяки перемозі відчу[в/ла], як успішне великої справи обов`язку приносить результат.');
 
 
+-- ------------- МІГРАЦІЯ 1 -------------- --
+-- ------------- МІГРАЦІЯ 1 -------------- --
 
---------------- МІГРАЦІЯ 1 ----------------
---------------- МІГРАЦІЯ 1 ----------------
---------------- МІГРАЦІЯ 1 ----------------
-
--- 0) Вчителі (потрібні для FK із games)
+-- 0) Вчителі (аналог users: code + installations)
 CREATE TABLE IF NOT EXISTS teachers (
-  fid VARCHAR(128) NOT NULL,
-  PRIMARY KEY (fid)
+  code CHAR(6) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP()),
+  PRIMARY KEY (code)
 ) ENGINE=InnoDB;
 
--- 1) Нова таблиця games (з teacher_fid одразу)
+CREATE TABLE IF NOT EXISTS teacher_installations (
+  id MEDIUMINT(9) NOT NULL AUTO_INCREMENT,
+  teacher_code CHAR(6) NOT NULL,
+  fid VARCHAR(128) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY idx_ti_teacher (teacher_code),
+  CONSTRAINT fk_ti_teacher
+    FOREIGN KEY (teacher_code) REFERENCES teachers(code)
+      ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- 1) Нова таблиця games з teacher_code (а не fid)
 CREATE TABLE IF NOT EXISTS games (
   code CHAR(6) NOT NULL,
-  teacher_fid VARCHAR(128) NULL,
+  teacher_code CHAR(6) NULL,
   scenario_slug VARCHAR(12) NOT NULL,
   PRIMARY KEY (code),
   KEY idx_games_scenario_slug (scenario_slug),
-  KEY idx_games_teacher_fid (teacher_fid),
+  KEY idx_games_teacher_code (teacher_code),
   CONSTRAINT fk_game_scenario
     FOREIGN KEY (scenario_slug) REFERENCES scenarios(slug),
   CONSTRAINT fk_games_teacher
-    FOREIGN KEY (teacher_fid) REFERENCES teachers(fid)
+    FOREIGN KEY (teacher_code) REFERENCES teachers(code)
       ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
@@ -330,7 +340,7 @@ ALTER TABLE sessions
   ADD COLUMN IF NOT EXISTS game_code CHAR(6) NULL AFTER user_code;
 
 -- 3) Створюємо “легасі-гру” для кожного сценарію (детермінований 6-значний код)
--- код = LPAD(MOD(CRC32(CONCAT(slug, '_legacy')), 1000000), 6, '0')
+-- code = LPAD(MOD(CRC32(CONCAT(slug, '_legacy')), 1000000), 6, '0')
 INSERT INTO games (code, scenario_slug)
 SELECT
   LPAD(MOD(CRC32(CONCAT(s.slug, '_legacy')), 1000000), 6, '0') AS code,
@@ -339,7 +349,7 @@ FROM scenarios s
 ON DUPLICATE KEY UPDATE
   scenario_slug = VALUES(scenario_slug);
 
--- 4) Бекфіл game_code у sessions через попередній scenario_slug
+-- 4) Бекфіл game_code у sessions за scenario_slug
 UPDATE sessions se
 JOIN (
   SELECT slug,
@@ -354,14 +364,14 @@ ALTER TABLE sessions
   DROP FOREIGN KEY fk_sess_scenario,
   DROP COLUMN scenario_slug;
 
--- 6) Додаємо FK на games та інші нові поля у sessions
+-- 6) Додаємо FK на games та допоміжні поля у sessions
 ALTER TABLE sessions
   ADD CONSTRAINT fk_sess_game
     FOREIGN KEY (game_code) REFERENCES games(code);
 
 ALTER TABLE sessions
   MODIFY COLUMN game_code CHAR(6) NOT NULL,
-  ADD COLUMN IF NOT EXISTS progress INT NULL,
-  ADD COLUMN IF NOT EXISTS score INT NULL;
+  ADD COLUMN IF NOT EXISTS progress JSON NULL,
+  ADD COLUMN IF NOT EXISTS score SMALLINT NULL;
 
--- Готово.
+-- ------------- КІНЕЦЬ МІГРАЦІЇ 1 -------------- --

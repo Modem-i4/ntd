@@ -22,17 +22,17 @@
     <div class="relative w-[90%] mx-auto">
       <!-- Лівий блок -->
       <div class="absolute left-3 bottom-0 flex items-end gap-2 md:left-6 lg:left-10">
-        <img src="/assets/chars/Shvarn.webp"  alt=""
+        <img src="/assets/chars/shvarn.webp"  alt=""
             class="h-46 md:h-64 lg:h-72 drop-shadow-[10px_10px_30px_rgba(255,255,255,1)]" />
-        <img src="/assets/chars/Danylo.webp"  alt=""
+        <img src="/assets/chars/danylo.webp"  alt=""
             class="h-50 md:h-72 lg:h-80 drop-shadow-[10px_10px_30px_rgba(255,255,255,1)]" />
       </div>
 
       <!-- Правий блок -->
       <div class="absolute right-3 bottom-0 flex items-end md:right-6 lg:right-10">
-        <img src="/assets/chars/Ostrozky.webp" alt=""
+        <img src="/assets/chars/ostrozky.webp" alt=""
             class="h-46 md:h-72 lg:h-80 drop-shadow-[10px_10px_30px_rgba(255,255,255,1)]" />
-        <img src="/assets/chars/Krymets.webp"  alt=""
+        <img src="/assets/chars/krymets.webp"  alt=""
             class="h-50 md:h-64 lg:h-72 drop-shadow-[10px_10px_30px_rgba(255,255,255,1)]" />
       </div>
     </div>

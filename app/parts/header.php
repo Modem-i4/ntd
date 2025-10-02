@@ -1,5 +1,9 @@
+<?php
+$fixed = $header_fixed ?? true;
+$posClass = $fixed ? 'fixed inset-x-0 top-0 z-50' : 'relative';
+?>
 <header id="site-header"
-    class="fixed top-0 inset-x-0 z-50 transition-all duration-300 ease-out py-6 md:py-8">
+    class="<?=$posClass?> transition-all duration-300 ease-out py-6 md:py-8">
   <div class="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between gap-4">
       <a href="/" class="flex items-center gap-3 shrink-0">
@@ -7,7 +11,7 @@
       </a>
       <nav class="hidden md:flex items-center gap-10 text-white font-semibold text-xl">
         <a href="/" class="hover:opacity-90">ГОЛОВНА</a>
-        <a href="/game" class="hover:opacity-90" target="_blank">ДО ГРИ!</a>
+        <a href="/play" class="hover:opacity-90" target="_blank">ДО ГРИ!</a>
         <a href="/training" class="hover:opacity-90">СТВОРЕННЯ СЦЕНАРІЮ</a>
       </nav>
       <button id="nav-toggle"
@@ -30,7 +34,7 @@
     <nav class="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-3">
       <ul class="flex flex-col gap-2 text-white text-lg font-semibold">
         <li><a class="block py-2" href="/">ГОЛОВНА</a></li>
-        <li><a class="block py-2" href="/game" target="_blank">ДО ГРИ!</a></li>
+        <li><a class="block py-2" href="/play">ДО ГРИ!</a></li>
         <li><a class="block py-2" href="/training">СТВОРЕННЯ СЦЕНАРІЮ</a></li>
       </ul>
     </nav>
