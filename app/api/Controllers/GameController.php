@@ -150,7 +150,7 @@ class GameController
     /** GET /api/games/stats?game_code=XXXXXX&limit=10 */
     public function stats(): array {
         $code  = trim((string)($_GET['game_code'] ?? ''));
-        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
+        $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 30;
         if ($code === '') throw new RuntimeException('game_code is required');
 
         // перший старт + кількість гравців
@@ -183,20 +183,22 @@ class GameController
         }
 
         // етапи: беремо останню сесію з progress для кожного user_code
-        $latest = $this->pdo->prepare(
-            'SELECT s1.user_code, s1.progress
-               FROM sessions s1
-               JOIN (
-                     SELECT user_code, MAX(started_at) AS mx, MAX(id) AS mid
-                       FROM sessions
-                      WHERE game_code = ? AND progress IS NOT NULL
-                   GROUP BY user_code
-               ) t ON t.user_code = s1.user_code
-                  AND s1.game_code = ?
-                  AND ((s1.started_at = t.mx AND s1.id = t.mid) OR s1.id = t.mid)
-              WHERE s1.progress IS NOT NULL'
-        );
-        $latest->execute([$code, $code]);
+        $latest = $this->pdo->prepare("
+            SELECT user_code, progress
+            FROM (
+                SELECT
+                user_code,
+                progress,
+                ROW_NUMBER() OVER (
+                    PARTITION BY user_code
+                    ORDER BY started_at DESC, id DESC
+                ) AS rn
+                FROM sessions
+                WHERE game_code = ? AND progress IS NOT NULL
+            ) AS t
+            WHERE rn = 1
+        ");
+        $latest->execute([$code]);
 
         $stageCounts = [];
         $totalWithProgress = 0;

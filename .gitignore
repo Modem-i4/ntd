@@ -2,3 +2,7 @@
 /package-lock.json
 /app/api/db.php
 /app/api/db1.php
+
+/storage/*
+!/storage/qr
+/storage/qr/*

@@ -16,12 +16,13 @@ class TrainingController
             http_response_code(400);
             return ['error' => 'Invalid or missing slug'];
         }
+        $base = isset($_GET['base']) ? strtolower(trim((string)$_GET['base'])) : 'training';
 
         // 2) базова директорія: app/sections/training (відносно цього файлу)
-        $baseDir = realpath(__DIR__ . '/../../sections/training');
+        $baseDir = realpath(__DIR__ . "/../../sections/{$base}");
         if ($baseDir === false) {
             http_response_code(500);
-            return ['error' => 'Base directory missing'];
+            return ['error' => 'Base directory missing', 'dir'=>__DIR__ . "/../../sections/{$base}"];
         }
 
         // 3) файл контенту

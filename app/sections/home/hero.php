@@ -1,6 +1,6 @@
 <section id="hero"
     class="relative isolate h-dvh w-full overflow-clip pt-[calc(var(--header-h)*2)]
-          bg-[url(/assets/hero-bg.webp)] bg-cover bg-center bg-no-repeat">
+          bg-[url(/assets/hero-bg.webp),linear-gradient(#678d91,#dbc8a5,#678d91)] bg-cover bg-center bg-no-repeat">
 
     <img src="/assets/hero-fg.webp" alt="" class="absolute bottom-0 h-2/3 max-w-none left-1/2 -translate-x-1/2 animate-floaty-max"> 
     

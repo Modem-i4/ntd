@@ -1,9 +1,9 @@
 <section id="about" class="relative overflow-hidden">
-  <div class="max-w-[100rem] py-14 md:py-40 px-1">
+  <div class="max-w-[100rem] pt-14 pb-7 md:pt-40 md:pb-22 px-1">
     <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 sm:gap-x-15 gap-y-3 md:gap-y-0">
       <div class="relative col-span-1 row-span-2 flex items-center">
         <div class="relative origin-left -ml-[33%] md:-ml-[25%] scale-[1.4] 
-           md:scale-[1.3] select-none w-full md:max-w-[620px] aspect-square">
+           md:scale-[1.3] select-none w-full md:max-w-[620px] aspect-square max-h-[200px] md:max-h-full">
           <img
             src="/assets/circle-bg.svg"
             alt=""

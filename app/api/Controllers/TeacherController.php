@@ -61,4 +61,40 @@ class TeacherController
         }
         return $_POST ?: [];
     }
+    public function sessions(): array {
+        $fid = trim((string)($_GET['fid'] ?? ''));
+        if ($fid === '') return [];
+
+        $sql = "
+            SELECT
+                g.code,
+                g.scenario_slug AS slug,
+                g.created_at AS created_at,
+                COUNT(DISTINCT s.user_code) AS players
+            FROM games g
+            JOIN (
+                SELECT DISTINCT teacher_code
+                FROM teacher_installations
+                WHERE fid = ?
+            ) ti ON ti.teacher_code = g.teacher_code
+            LEFT JOIN sessions s ON s.game_code = g.code
+            GROUP BY g.code, g.scenario_slug, g.created_at
+            ORDER BY g.created_at DESC, g.code ASC
+        ";
+
+        $st = $this->pdo->prepare($sql);
+        $st->execute([$fid]);
+
+        $out = [];
+        foreach ($st as $r) {
+            $out[] = [
+                'createdAt' => $r['created_at'] !== null ? (new \DateTime($r['created_at']))->format('c') : null,
+                'slug'     => (string)$r['slug'], 
+                'players'   => (int)$r['players'], 
+                'code'      => (string)$r['code'],
+            ];
+        }
+        return $out;
+    }
+
 }

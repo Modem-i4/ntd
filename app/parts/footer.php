@@ -19,7 +19,7 @@
         <div class="text-center">
           <div class="font-extrabold text-3xl md:text-lg">Слідкуй за нами!</div>
           <div class="mt-4 md:mt-3 flex justify-center gap-6 md:gap-4">
-            <a href="https://facebook.com" target="_blank" aria-label="Facebook"
+            <a href="https://www.facebook.com/nova.tradition" target="_blank" aria-label="Facebook"
               class="grid place-items-center rounded-full bg-white/10 hover:bg-white/20 transition h-12 w-12 md:h-9 md:w-9">
               <img src="/assets/fb-white.svg" alt="facebook"/>
             </a>

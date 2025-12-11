@@ -12,6 +12,7 @@ class SessionsController {
     private function ts($v): ?string { if($v===null||$v==='')return null; if(is_numeric($v)){ $x=(int)$v; if($x>20000000000)$x=intdiv($x,1000); return date('Y-m-d H:i:s',$x);} $s=trim((string)$v); return $s!==''?$s:null; }
     private function one(string $sql,array $p):?array{ $st=$this->pdo->prepare($sql); $st->execute($p); $r=$st->fetch(); return $r?:null; }
     private function exists(string $sql,array $p):bool{ $st=$this->pdo->prepare($sql); $st->execute($p); return (bool)$st->fetchColumn(); }
+    private function code6(): string { do{ $c=''; for($i=0;$i<6;$i++) $c.=random_int(0,9); }while($this->exists("SELECT 1 FROM games WHERE code=?",[$c])); return $c; }
 
     private function ensureUser(string $code): void {
         if(!$this->exists("SELECT 1 FROM users WHERE code=?",[$code])){
@@ -22,7 +23,7 @@ class SessionsController {
     private function ensureSession(array $sessIn): array {
         $sid=$this->n($sessIn['id']??null);
         if($sid){
-            $row=$this->one("SELECT id,user_code,scenario_slug FROM sessions WHERE id=?",[$sid]);
+            $row=$this->one("SELECT s.id,s.user_code,s.game_code,g.scenario_slug FROM sessions s JOIN games g ON g.code=s.game_code WHERE s.id=?",[$sid]);
             if($row){
                 $upd=[];$vals=[];
                 foreach(['started_at','game_started_at','game_ended_at','ended_at'] as $k){
@@ -30,17 +31,36 @@ class SessionsController {
                     if($v!==null){ $upd[]="$k=?"; $vals[]=$v; }
                 }
                 if($upd){ $vals[]=$sid; $this->pdo->prepare("UPDATE sessions SET ".implode(',',$upd)." WHERE id=?")->execute($vals); }
-                return $row;
+                return ['id'=>$row['id'],'user_code'=>$row['user_code'],'scenario_slug'=>$row['scenario_slug']];
             }
         }
-        $user=trim((string)($sessIn['user_code']??'')); $sc=$this->s($sessIn['scenario_slug']??'');
-        if(!preg_match('/^\d{6}$/',$user) || $sc==='') throw new RuntimeException('need session.user_code(6) and session.scenario_slug');
-        if(!$this->exists("SELECT 1 FROM scenarios WHERE slug=?",[$sc])) throw new RuntimeException('scenario_slug not found');
+
+        $user=trim((string)($sessIn['user_code']??'')); 
+        $gc=$this->s($sessIn['game_code']??'');
+        $sc=$this->s($sessIn['scenario_slug']??'');
+
+        if(!preg_match('/^\d{6}$/',$user) || ($gc==='' && $sc==='')) throw new RuntimeException('need session.user_code(6) and session.game_code or session.scenario_slug');
+
+        if($gc!==''){
+            $g=$this->one("SELECT scenario_slug FROM games WHERE code=?",[$gc]);
+            if(!$g) throw new RuntimeException('game_code not found');
+            $sc=$g['scenario_slug'];
+            if(!$this->exists("SELECT 1 FROM scenarios WHERE slug=?",[$sc])) throw new RuntimeException('scenario_slug not found');
+        }else{
+            if(!$this->exists("SELECT 1 FROM scenarios WHERE slug=?",[$sc])) throw new RuntimeException('scenario_slug not found');
+            $g=$this->one("SELECT code FROM games WHERE scenario_slug=? AND teacher_code IS NULL LIMIT 1",[$sc]);
+            if($g){ $gc=$g['code']; }
+            else{
+                $gc=$this->code6();
+                $this->pdo->prepare("INSERT INTO games(code,teacher_code,scenario_slug) VALUES(?,NULL,?)")->execute([$gc,$sc]);
+            }
+        }
+
         $this->ensureUser($user);
-        $this->pdo->prepare("INSERT INTO sessions(user_code,scenario_slug,started_at,game_started_at,game_ended_at,ended_at) VALUES(?,?,?,?,?,?)")
-            ->execute([$user,$sc,$this->ts($sessIn['started_at']??null),$this->ts($sessIn['game_started_at']??null),$this->ts($sessIn['game_ended_at']??null),$this->ts($sessIn['ended_at']??null)]);
+        $this->pdo->prepare("INSERT INTO sessions(user_code,game_code,started_at,game_started_at,game_ended_at,ended_at) VALUES(?,?,?,?,?,?)")
+            ->execute([$user,$gc,$this->ts($sessIn['started_at']??null),$this->ts($sessIn['game_started_at']??null),$this->ts($sessIn['game_ended_at']??null),$this->ts($sessIn['ended_at']??null)]);
         $sid=(int)$this->pdo->lastInsertId();
-        return ['id'=>$sid,'user_code'=>$user,'scenario_slug'=>$sc];
+        return ['id'=>$sid,'user_code'=>$user,'game_code'=>$gc,'scenario_slug'=>$sc];
     }
 
     private function isOpt(string $scenario,string $metric,int $testN,int $optN):bool{
@@ -111,10 +131,26 @@ class SessionsController {
 
                 
             $this->pdo->commit();
-            return ['ok'=>true,'session'=>['id'=>$sid,'user_code'=>$S['user_code'],'scenario_slug'=>$scenario],'saved'=>['tests'=>$savedTests,'surveys'=>$savedSurveys]];
+            return ['ok'=>true,'session'=>['id'=>$sid,'user_code'=>$S['user_code'],'game_code'=>$S['game_code'],'scenario_slug'=>$scenario],'saved'=>['tests'=>$savedTests,'surveys'=>$savedSurveys]];
         }catch(Throwable $e){
             if($this->pdo->inTransaction())$this->pdo->rollBack();
             return ['ok'=>false,'error'=>'record failed','detail'=>$e->getMessage()];
         }
     }
+
+
+    public function checkExist(): array {
+        $raw = $_GET['code'];
+        $code = preg_replace('/\D/', '', (string)$raw);
+        if (!preg_match('/^\d{6}$/', $code)) {
+            return ['ok' => false, 'error' => 'bad_code'];
+        }
+
+        if (!$this->exists("SELECT 1 FROM games WHERE code = ?", [$code])) {
+            return ['ok' => false, 'error' => 'session_not_found'];
+        }
+
+        return ['ok' => true, 'code' => $code];
+    }
+
 }

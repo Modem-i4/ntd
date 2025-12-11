@@ -18,13 +18,13 @@
     </h2>
 
     <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-5 sm:gap-8">
-      <a href="https://facebook.com" class="inline-flex items-center gap-3 rounded-full p-3 min-w-[250px] text-white hover:opacity-95 transition
+      <a href="https://www.facebook.com/nova.tradition" target="_blank" class="inline-flex items-center gap-3 rounded-full p-3 min-w-[250px] text-white hover:opacity-95 transition
         bg-[linear-gradient(90deg,#4F8CEF_0%,#348BF0_50%,#057EB0_100%)]">
         <img src="/assets/fb.svg" alt="" class="h-12 w-12"/>
         <span class="text-lg sm:text-xl font-semibold">Facebook</span>
       </a>
 
-      <a href="https://www.instagram.com/nova.tradition/" class="inline-flex items-center gap-3 rounded-full px-6 py-3 min-w-[250px] text-white hover:opacity-95 transition
+      <a href="https://www.instagram.com/nova.tradition/" target="_blank" class="inline-flex items-center gap-3 rounded-full px-6 py-3 min-w-[250px] text-white hover:opacity-95 transition
         bg-[linear-gradient(90deg,#5953CB_0%,#BE328A_25%,#E8584C_45%,#FB9A38_66%,#DD2D76_75%,#BE328A_90%,#5953CB_100%)]">
         <img src="/assets/insta.svg" alt="" class="h-12 w-12" />
         <span class="text-lg sm:text-xl font-semibold">Instagram</span> 

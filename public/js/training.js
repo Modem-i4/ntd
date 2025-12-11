@@ -13,10 +13,14 @@ const openMenuBtn       = q('#openMenuBtn');
 const closeMenuBtn      = q('#closeMenuBtn');
 const navMobile         = q('#navListMobile');
 const searchInputMobile = q('#searchInputMobile');
+const mainArticle       = q('#mainArticle');
+const mainSection       = q('#mainSection');
+
+const chaptersBase = mainSection?.getAttribute('data-chapters-base');
 
 // ---- Проста анімація мобільного меню (виїзд збоку + затемнення) ----
-const overlay = mobileMenu?.querySelector(':scope > .absolute'); // затемнення
-const panel   = mobileMenu?.querySelector(':scope > .relative');  // сама панель
+const overlay = mobileMenu?.querySelector(':scope > .absolute');
+const panel   = mobileMenu?.querySelector(':scope > .relative');
 
 if (overlay) overlay.classList.add('opacity-0','transition-opacity','duration-200','ease-out');
 if (panel)   panel.classList.add('-translate-x-full','transition-transform','duration-200','ease-out');
@@ -33,7 +37,6 @@ function setMobileMenu(open) {
       panel?.classList.remove('-translate-x-full');
       panel?.classList.add('translate-x-0');
     });
-    // НЕ фокусимо пошук
     openMenuBtn?.classList.add('hidden');
   } else {
     overlay?.classList.remove('opacity-100');
@@ -102,13 +105,20 @@ applyFilter(navDesktop, ''); applyFilter(navMobile, '');
 
 // ---- Плоский список розділів + мапа title ----
 const navLinks = qa('#navList .category-item a[data-slug]');
-const order = navLinks.map(a => ({ slug: a.getAttribute('data-slug'), title: a.textContent.trim() }));
+const order = navLinks.map(a => ({ slug: a.getAttribute('data-slug'), width: a.getAttribute('data-width'), title: a.textContent.trim() }));
 const titleBySlug = order.reduce((acc, x) => { acc[x.slug] = x.title; return acc; }, {});
+const widthBySlug = order.reduce((acc, x) => { acc[x.slug] = x.width; return acc; }, {});
 
 function setActive(slug) {
   qa('.category-item a').forEach(a => a.classList.remove('bg-[#597f85]/20'));
-  const link = q(`.category-item a[data-slug="${CSS.escape(slug)}"]`);
-  link?.classList.add('bg-[#597f85]/20');
+  const links = qa(`.category-item a[data-slug="${CSS.escape(slug)}"]`);
+  links.forEach(a => a.classList.add('bg-[#597f85]/20'));
+}
+
+function updateUrl(slug) {
+  const targetSlug = (slug === 'intro') ? '' : slug;
+  const first = location.pathname.split('/').filter(Boolean)[0];
+  history.pushState(null, '', `/${first}/${targetSlug ? targetSlug + '/' : ''}${location.search}${location.hash}`);
 }
 
 // ---- Завантаження контенту + "наступний розділ" ----
@@ -124,12 +134,14 @@ async function loadLessonBySlug(slug) {
   `;
 
   try {
-    const res = await fetch(`/api/training?slug=${encodeURIComponent(slug)}`, { headers: { 'Accept': 'application/json' }});
+    const res = await fetch(`/api/training?slug=${encodeURIComponent(slug)}&base=${chaptersBase}`, { headers: { 'Accept': 'application/json' }});
     if (!res.ok) throw new Error();
     const data = await res.json();
 
     contentTitle.textContent = titleBySlug[slug] || 'Матеріал';
     contentBody.innerHTML = data.content || '<p>Порожньо.</p>';
+    mainArticle.classList.remove('max-w-2xl','max-w-3xl','max-w-4xl','max-w-5xl');
+    mainArticle.classList.add(widthBySlug[slug]);
 
     const i = order.findIndex(x => x.slug === slug);
     const next = i >= 0 ? order[i + 1] : null;
@@ -142,11 +154,14 @@ async function loadLessonBySlug(slug) {
       btn.textContent = `Перейти до “${next.title}”`;
       btn.addEventListener('click', () => {
         setActive(next.slug);
+        updateUrl(next.slug);
         loadLessonBySlug(next.slug);
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // скрол при переході на наступний
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       wrap.appendChild(btn);
       contentBody.appendChild(wrap);
+        renderFAQ();
+        window.renderCertificates?.();
     }
   } catch {
     contentTitle.textContent = titleBySlug[slug] || 'Помилка завантаження';
@@ -156,14 +171,12 @@ async function loadLessonBySlug(slug) {
 
 // ---- Закрити меню і лише потім зробити дію (для коректного скролу) ----
 function closeMenuThen(cb) {
-  // якщо меню і так приховане (десктоп) — просто викликаємо дію
   if (!mobileMenu || mobileMenu.classList.contains('hidden')) {
-    cb(); 
+    cb();
     return;
   }
   const onEnd = () => {
     panel?.removeEventListener('transitionend', onEnd);
-    // після розблокування скролу сторінки — виконуємо дію
     cb();
   };
   panel?.addEventListener('transitionend', onEnd);
@@ -179,16 +192,23 @@ function handleNavClick(e) {
 
   closeMenuThen(() => {
     setActive(slug);
+    updateUrl(slug);
     loadLessonBySlug(slug);
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // скрол ПІСЛЯ вибору пункту
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 navDesktop?.addEventListener('click', handleNavClick);
 navMobile?.addEventListener('click', handleNavClick);
 
+window.addEventListener('popstate', () => {
+  const page = window.location.pathname.split('/').filter(Boolean)[1] ?? order[0].slug;
+  setActive(page);
+  loadLessonBySlug(page);
+});
+
 // ---- Автовідкриття першого елемента при старті ----
 if (order.length) {
-  const first = order[0];
-  setActive(first.slug);
-  loadLessonBySlug(first.slug);
+  const page = window.location.pathname.split('/').filter(Boolean)[1] ?? order[0].slug;
+  setActive(page);
+  loadLessonBySlug(page);
 }

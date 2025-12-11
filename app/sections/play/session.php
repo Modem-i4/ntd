@@ -83,6 +83,12 @@
       </div>
 
     </div>
+    <div>
+  </section>
+  <section class="flex">
+    <a href="#" target="_blank" class="mx-auto rounded-lg bg-orange-100 px-5 py-3 text-center font-bold text-black hover:bg-orange-200 transition guidelines-link">
+            МЕТОДИЧНІ РЕКОМЕНДАЦІЇ
+          </a>
   </section>
 </div>
 
@@ -107,12 +113,17 @@
   const imgRightEl = $('#img-right');
   const qrBox = $('#qrcode');
   const center = $('#center-stack');
+  const guidelinesLink = $('.guidelines-link');
 
-  const SCENARIO_TITLES = { danylo:'Король Данило', vitovt:'Коронація Вітовта', orsha:'Битва під Оршею' };
+  const SCENARIO_TITLES = { danylo:'Король Данило', vitovt:'Коронація Вітовта', orsha:'Битва під Оршею', orlyk:'Конституція Орлика', unr:'Від гетьманату до Директорії',khotyn:   'Хотинська битва 1621',kyiv:   'Ярмарок у Києві' };
   const SCENERY_IMAGES = {
     danylo:{ left:'/assets/chars/danylo.webp', right:'/assets/chars/shvarn.webp' },
     vitovt:{ left:'/assets/chars/yagello.webp', right:'/assets/chars/vitovt.webp' },
-    orsha:{  left:'/assets/chars/krymets.webp',  right:'/assets/chars/ostrozky.webp' }
+    orsha:{  left:'/assets/chars/krymets-mirror.webp',  right:'/assets/chars/ostrozky.webp' },
+    orlyk:{  left:'/assets/chars/orlyk.webp',  right:'/assets/chars/kost.webp' },
+    unr:  {  left:'/assets/chars/petl.webp',  right:'/assets/chars/skorop.webp' },
+    khotyn:  {  left:'/assets/chars/kozak-gun.webp',  right:'/assets/chars/sahay.webp' },
+    kyiv:  {  left:'/assets/chars/spy.webp',  right:'/assets/chars/viyt.webp' },
   };
   const DEFAULT_IMAGES = { left:'/assets/default-left.jpg', right:'/assets/default-right.jpg' };
 
@@ -228,6 +239,7 @@
     syncCenterHeight();
     renderQR(joinHref);
     renderTables(data);
+    guidelinesLink.setAttribute('href',`/guidelines/${slug}`);
   };
 
   let timer = null, inFlight = null, slugOnce = null;
@@ -273,5 +285,43 @@
 
   if (!/^\d{6}$/.test(GAME_CODE)) { console.warn('Очікуються 6 цифр у URL'); return; }
   loadNow();
+  // loadOnce();
 })();
+
+  (function () {
+    const el = document.getElementById('join-link');
+
+    el.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      // Що копіюємо: спершу data-copy, потім текст посилання, потім href
+      const text = el.dataset.copy?.trim()
+        || el.textContent.trim()
+        || el.href;
+
+      // Тост-повідомлення прямо в елементі
+      const prev = el.textContent;
+      const showOk = () => {
+        el.textContent = 'Скопійовано!';
+        setTimeout(() => (el.textContent = prev), 1200);
+      };
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showOk();
+      } catch {
+        // Фолбек для старих браузерів
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showOk();
+      }
+    });
+  })();
 </script>

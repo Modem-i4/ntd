@@ -9,12 +9,18 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 2) Винятки: не чіпати ці шляхи
-#    (phpmyadmin, xampp dashboard, твій /game)
-RewriteRule ^game(/.*)?$ - [L,NC]
+# 2) /game і /game/123456 -> внутрішньо на game/index.html (URL не змінюється)
+RewriteRule ^game(?:/(\d{6}))?/?$ game/index.html [L,NC]
 
 # 2a) API: усе під /api -> api.php (у корені public)
 RewriteRule ^api(?:/.*)?$ api.php [L,QSA,NC]
+
+# 2b) Certificates: усе під /certs -> api.php (у корені public)
+RewriteRule ^certs(?:/.*)?$ api.php [L,QSA,NC]
+RewriteRule ^l(?:/.*)?$ api.php [L,QSA,NC]
+
+# 2c) /pdf/... -> внутрішньо на /storage/pdf/...
+RewriteRule ^pdf/(.+)$ storage/pdf/$1 [L,NC]
 
 # 3) У роутер — тільки запити без розширення
 RewriteCond %{REQUEST_URI} !\.[a-z0-9]{2,5}$ [NC]

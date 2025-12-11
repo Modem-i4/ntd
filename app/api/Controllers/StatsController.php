@@ -1,4 +1,5 @@
 <?php
+
 class StatsController {
     public function __construct(private PDO $pdo) {
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -6,9 +7,39 @@ class StatsController {
         $this->pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
 
-    public function index(): array {
+    public function index() : array {
+        return [
+            'ok' => true,
+            'numeric' => $this->numeric(),
+            'improvement' => $this->improvement()
+        ];
+    }
+
+    public function cached(): array {
+        $cacheFile = __DIR__ . '/../../../storage/stats_cache.json';
+        if (!is_file($cacheFile)) return $this->index();
+        $raw = file_get_contents($cacheFile);
+        if ($raw === false) return $this->index();
+        $data = json_decode($raw, true);
+        if (!is_array($data)) return $this->index();
+        
+        return $data;
+    }
+
+    public function makeCache(): array {
+        $cacheFile = __DIR__ . '/../../../storage/stats_cache.json';
+        $data = $this->index();
+        file_put_contents($cacheFile, json_encode($data, JSON_UNESCAPED_UNICODE));
+        return $data;
+    }
+
+    public function detailed() : array {
+        return ['ok' => true, 'basic' => $this->index(), 'details' => $this->details()];
+    }
+
+    public function improvement(): array {
         try {
-            $testsByMetric = $this->pdo->query("
+            $testsRows = $this->pdo->query("
                 WITH base_candidates AS (
                     SELECT s.user_code, at.scenario_slug, at.metric, at.test_n,
                            CASE WHEN topt.correct=1 THEN 1.0 ELSE 0.0 END AS pre_raw,
@@ -67,6 +98,13 @@ class StatsController {
                 GROUP BY j.metric
                 ORDER BY j.metric
             ")->fetchAll();
+
+            $testsByMetric = [];
+            foreach ($testsRows as $row) {
+                $metric = $row['metric'];
+                unset($row['metric']);
+                $testsByMetric[$metric] = $row;
+            }
 
             $surveys = $this->pdo->query("
                 WITH pre AS (
@@ -148,7 +186,111 @@ class StatsController {
                 FROM joined
             ")->fetch();
 
-            return ['ok'=>true,'tests_by_metric'=>$testsByMetric,'surveys'=>$surveys,'surveys_overall'=>$surveysOverall];
+            return ['ok' => true, 'tests' => $testsByMetric, 'surveys' => $surveysOverall];
+        } catch (Throwable $e) {
+            return ['ok' => false, 'error' => 'stats failed', 'detail' => $e->getMessage()];
+        }
+    }
+
+    public function numeric(): array {
+        try {
+            $uniquePlayers = (int)$this->pdo
+                ->query("SELECT COUNT(DISTINCT user_code) FROM sessions")
+                ->fetchColumn();
+
+            $uniquePlayersCompleted = (int)$this->pdo
+                ->query("SELECT COUNT(DISTINCT user_code) FROM sessions WHERE ended_at IS NOT NULL")
+                ->fetchColumn();
+
+            $lessons = (int)$this->pdo
+                ->query("
+                    SELECT COUNT(*) FROM (
+                        SELECT game_code
+                        FROM sessions
+                        GROUP BY game_code
+                        HAVING COUNT(DISTINCT user_code) > 1
+                    ) t
+                ")
+                ->fetchColumn();
+
+            $sessions = (int)$this->pdo
+                ->query("
+                    SELECT COUNT(*) FROM sessions WHERE score > 0 OR ended_at IS NOT NULL 
+                ")
+                ->fetchColumn();
+
+            $uniqueTeachers = (int)$this->pdo
+                ->query("
+                    SELECT COUNT(DISTINCT g.teacher_code)
+                    FROM games g
+                    JOIN (
+                        SELECT game_code
+                        FROM sessions
+                        GROUP BY game_code
+                        HAVING COUNT(DISTINCT user_code) > 1
+                    ) s ON s.game_code = g.code
+                    WHERE g.teacher_code IS NOT NULL
+                ")
+                ->fetchColumn();
+
+            return [
+                'ok' => true,
+                'uniquePlayers' => $uniquePlayers,
+                'uniquePlayersCompleted' => $uniquePlayersCompleted,
+                'lessons' => $lessons,
+                'sessions' => $sessions,
+                'uniqueTeachers' => $uniqueTeachers,
+            ];
+        } catch (Throwable $e) {
+            return ['ok'=>false,'error'=>'stats failed','detail'=>$e->getMessage()];
+        }
+    }
+
+    public function details(): array {
+        try {
+            $surveys = $this->pdo->query("
+                WITH pre AS (
+                    SELECT s.user_code, sa.scenario_slug, sa.sur_n, sa.val_before AS B0,
+                           ROW_NUMBER() OVER (
+                             PARTITION BY s.user_code, sa.scenario_slug, sa.sur_n
+                             ORDER BY s.started_at, sa.id
+                           ) AS rn
+                    FROM ans_sur sa
+                    JOIN sessions s ON s.id=sa.session_id
+                    WHERE sa.val_before IS NOT NULL
+                ),
+                baseline_sa AS (
+                    SELECT user_code, scenario_slug, sur_n, B0
+                    FROM pre
+                    WHERE rn=1
+                ),
+                current_sa AS (
+                    SELECT s.user_code, sa.scenario_slug, sa.sur_n, sa.val_after AS AfterVal
+                    FROM ans_sur sa
+                    JOIN sessions s ON s.id=sa.session_id
+                    WHERE sa.val_after IS NOT NULL
+                ),
+                joined AS (
+                    SELECT c.user_code, c.scenario_slug, c.sur_n,
+                           b.B0 AS pre_val, c.AfterVal AS post_val, (c.AfterVal-b.B0) AS improvement
+                    FROM current_sa c
+                    JOIN baseline_sa b
+                      ON b.user_code=c.user_code
+                     AND b.scenario_slug=c.scenario_slug
+                     AND b.sur_n=c.sur_n
+                )
+                SELECT scenario_slug, sur_n,
+                       AVG(pre_val)  AS pre,
+                       AVG(post_val) AS post,
+                       AVG(improvement) AS avg_change,
+                       COUNT(*) AS answers_count,
+                       COUNT(DISTINCT user_code) AS users_count
+                FROM joined
+                GROUP BY scenario_slug, sur_n
+                ORDER BY scenario_slug, sur_n
+            ")->fetchAll();
+
+            return ['ok'=>true,'surveys'=>$surveys];
         } catch (Throwable $e) {
             return ['ok'=>false,'error'=>'stats failed','detail'=>$e->getMessage()];
         }
