@@ -165,21 +165,29 @@ class GameController
 
         // лідери: MAX(score) по user_code
         $leadersSt = $this->pdo->prepare(
-            'SELECT user_code, MAX(score) AS best_score
-            FROM sessions
-            WHERE game_code = ?
-        GROUP BY user_code
-        ORDER BY (MAX(score) IS NULL) ASC,  -- спочатку ті, де score не NULL
-                    MAX(score) DESC,
-                    user_code ASC
+            'SELECT t.user_code,
+                    u.name,
+                    t.best_score
+            FROM (
+                SELECT user_code, MAX(score) AS best_score
+                FROM sessions
+                WHERE game_code = ?
+                GROUP BY user_code
+            ) t
+            LEFT JOIN users u ON u.code = t.user_code
+            WHERE t.best_score IS NOT NULL
+            ORDER BY t.best_score DESC, t.user_code ASC
             LIMIT '.(int)$limit
         );
         $leadersSt->execute([$code]);
 
         $leaders = [];
         while ($r = $leadersSt->fetch()) {
-            if ($r['best_score'] === null) continue;
-            $leaders[] = ['user_code'=>$r['user_code'], 'score'=>(int)$r['best_score']];
+            $leaders[] = [
+                'user_code' => $r['user_code'],
+                'name'      => $r['name'] ?? '',
+                'score'     => (int)$r['best_score'],
+            ];
         }
 
         // етапи: беремо останню сесію з progress для кожного user_code

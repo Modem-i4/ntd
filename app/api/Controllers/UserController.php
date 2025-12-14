@@ -51,7 +51,7 @@ class UserController {
 
             // 1) шукаємо існуючого юзера за fid
             $stmt = $this->pdo->prepare(
-                'SELECT u.code, u.saves
+                'SELECT u.code, u.name, u.saves
                    FROM user_installations ui
                    JOIN users u ON u.code = ui.user_code
                   WHERE ui.fid = ?
@@ -73,7 +73,7 @@ class UserController {
                 $this->pdo->prepare('INSERT INTO user_installations (user_code, fid) VALUES (?, ?)')
                           ->execute([$code, $fid]);
 
-                $user = ['code' => $code, 'saves' => null];
+                $user = ['code' => $code, 'name' => '', 'saves' => null];
             }
 
             $this->pdo->commit();
@@ -127,6 +127,7 @@ class UserController {
     public function save(): array {
         $in       = $this->jsonInput();
         $userCode = strtoupper($this->requireField($in, 'user_code'));
+        $userName = $this->requireField($in, 'user_name');
         $saves    = $in['saves'] ?? null;
 
         // якщо передано масив/об'єкт — перетворюємо на JSON
@@ -138,8 +139,8 @@ class UserController {
         }
 
         // оновлюємо
-        $stmt = $this->pdo->prepare('UPDATE users SET saves = ? WHERE code = ?');
-        $stmt->execute([$saves, $userCode]);
+        $stmt = $this->pdo->prepare('UPDATE users SET name = ?, saves = ? WHERE code = ?');
+        $stmt->execute([$userName, $saves, $userCode]);
 
         if ($stmt->rowCount() === 0) {
             // або користувача нема, або те саме значення — перевіримо існування

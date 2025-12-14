@@ -204,12 +204,14 @@
     } else {
       leaders.forEach((row, i) => {
         const tr = document.createElement('tr');
+        const name = (row.name) ? row.name: `Гравець/гравчиня ${i + 1}`;
         tr.innerHTML = `
           <td class="px-3 md:px-4 py-3">
-            <span class="inline-grid place-items-center h-7 w-7 rounded-md bg-zinc-100 text-zinc-700 font-semibold mr-2">${i+1}</span>
-            Гравець/гравчиня ${i+1}
+            <span class="inline-grid place-items-center h-7 w-7 rounded-md bg-zinc-100 text-zinc-700 font-semibold mr-2">${i + 1}</span>
+            ${name}
           </td>
-          <td class="px-3 md:px-4 py-3 text-right font-semibold">${Number(row.score||0)}</td>`;
+          <td class="px-3 md:px-4 py-3 text-right font-semibold">${Number(row.score || 0)}</td>
+        `;
         tLeaders.appendChild(tr);
       });
     }
