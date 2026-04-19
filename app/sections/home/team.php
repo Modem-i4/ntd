@@ -28,13 +28,18 @@
         ["img" => "/assets/team/Taras.webp",  "name" => "Тарас Хведенчук",   "role" => "Вчитель НУШ, історик"],
       ];
 
-      $card = function($p) {
+      $card = function($p, $i) {
+        $snapStyle = $i % 2 === 0
+          ? 'scroll-snap-align: start; scroll-snap-stop: always;'
+          : 'scroll-snap-align: none;';
         ?>
-        <article class="shrink-0 snap-start basis-1/2 px-3 md:basis-auto md:px-0 md:col-span-2">
+        <article style="<?= $snapStyle ?>" class="shrink-0 basis-1/2 px-3 md:basis-auto md:px-0 md:col-span-2">
           <div class="mx-auto w-full max-w-64">
             <div class="img-container">
-              <div class="mx-auto w-full aspect-square max-w-42 md:max-w-64 rounded-full p-[10px] bg-gradient-to-br from-rose-200 to-emerald-200">
-                <img src="<?= $p['img'] ?>" alt="<?= htmlspecialchars($p['name'], ENT_QUOTES) ?>" class="block h-full w-full rounded-full object-cover">
+              <div class="relative mx-auto w-full max-w-42 md:max-w-64 rounded-full p-[10px] bg-gradient-to-br from-rose-200 to-emerald-200">
+                <div class="relative overflow-hidden rounded-full" style="padding-top: 100%;">
+                  <img src="<?= $p['img'] ?>" alt="<?= htmlspecialchars($p['name'], ENT_QUOTES) ?>" width="512" height="512" class="absolute inset-0 h-full w-full rounded-full object-cover">
+                </div>
               </div>
             </div>
             <h3 class="mt-4 text-center text-xl font-extrabold"><?= $p['name'] ?></h3>
@@ -44,7 +49,7 @@
         <?php
       };
 
-      foreach (array_slice($team, 0, 3) as $p) $card($p);
+      foreach (array_slice($team, 0, 3) as $i => $p) $card($p, $i);
     ?>
 
     <div class="hidden md:block relative md:col-span-1 md:col-start-7">
@@ -61,7 +66,7 @@
         class="absolute -right-5 top-40 w-20 xl:w-24 drop-shadow-md opacity-95 animate-floaty-rotate [animation-delay:2s] hover-scale">
     </div>
 
-    <?php foreach (array_slice($team, 3, 3) as $p) $card($p); ?>
+    <?php foreach (array_slice($team, 3, 3) as $i => $p) $card($p, $i + 3); ?>
   </div>
   </div>
 </section>
@@ -71,6 +76,9 @@
   const track = document.getElementById('team-track');
   const prev  = document.getElementById('team-prev');
   const next  = document.getElementById('team-next');
+  const slides = [...(track?.children ?? [])].filter(el => el.tagName === 'ARTICLE');
+  let left = track?.scrollLeft ?? 0;
+  let syncTimer = 0;
 
   const setNavVis = () => {
     const isMobile = matchMedia('(max-width: 767px)').matches;
@@ -79,9 +87,26 @@
   setNavVis();
   addEventListener('resize', setNavVis);
 
-  const step = () => track.clientWidth;
+  const step = () => slides[2]
+    ? slides[2].offsetLeft - slides[0].offsetLeft
+    : track.clientWidth;
 
-  prev?.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
-  next?.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+  const go = dir => {
+    if (!track || !slides.length) return;
+
+    const max = track.scrollWidth - track.clientWidth;
+    left = Math.max(0, Math.min(left + dir * step(), max));
+    track.scrollTo({ left, behavior: 'smooth' });
+  };
+
+  if (track && slides.length) {
+    track.addEventListener('scroll', () => {
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => { left = track.scrollLeft; }, 120);
+    }, { passive: true });
+  }
+
+  prev?.addEventListener('click', () => go(-1));
+  next?.addEventListener('click', () => go(1));
 })();
 </script>

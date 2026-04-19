@@ -3,19 +3,16 @@
 
   <div id="menu-view" class="space-y-3 md:space-y-0">
     <div class="md:grid md:grid-cols-[auto,1fr] md:items-center md:gap-3">
-      <div class="flex justify-center">
-        <span class="px-2 py-1 mb-2 rounded font-semibold text-white bg-[#689296cc]">Хто ви?</span>
-      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <button data-choose="student"
           class="flex items-center justify-between rounded-lg px-4 py-3 bg-orange-100 hover:bg-orange-200 transition font-semibold cursor-pointer">
-          <span>Я — Учень</span>
+          <span>Зіграти самостійно</span>
           <svg class="size-4 opacity-70" viewBox="0 0 20 20" fill="currentColor"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707A1 1 0 118.707 5.293l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
         </button>
         <button data-choose="teacher"
           class="flex items-center justify-between rounded-lg px-4 py-3 bg-orange-100 hover:bg-orange-200 transition font-semibold cursor-pointer">
-          <span>Я — Вчитель</span>
+          <span>Проведені уроки</span>
           <svg class="size-4 opacity-70" viewBox="0 0 20 20" fill="currentColor"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707A1 1 0 118.707 5.293l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"/></svg>
         </button>
       </div>
@@ -121,7 +118,7 @@
       }
     } else {
       rolePill.textContent = 'Учень';
-      hint.textContent = 'Перейди прямо до гри. Ти можеш зіграти гру і сам, обравши «Гра без коду».';
+      hint.textContent = 'Перейдіть прямо до гри. Ви можете зіграти гру і не на уроці, обравши «Гра без коду».';
       show(hint, true);
       show(inputWrap, false); show(codeInput, false);
       show(confirmBtn, false); show(openGameBtn, true);
@@ -177,7 +174,9 @@
     orlyk: 'Конституція Орлика', 
     unr:   'Від гетьманату до Директорії',
     khotyn:   'Хотинська битва 1621',
-    kyiv: 'Ярмарок в Києві'
+    kyiv: 'Ярмарок в Києві',
+    lesya: 'Леся: Слово та свобода',
+    plast: 'Вчися діяти: молодіжні організації поч. ХХ ст.',
   };
 
   const fmtDate = (iso) => {

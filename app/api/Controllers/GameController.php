@@ -39,18 +39,21 @@ class GameController
     }
 
     /** GET /api/games/scenario?game_code=XXXXXX */
-    public function scenario(): array {
-        $code = trim((string)($_GET['game_code'] ?? ''));
+    public function scenario(string $code): array {
         if ($code === '') throw new RuntimeException('game_code is required');
-
         $st = $this->pdo->prepare('SELECT scenario_slug FROM games WHERE code = ?');
         $st->execute([$code]);
         $row = $st->fetch();
         if (!$row) throw new RuntimeException('Game not found');
+        
+        return $this->scenarioSlug($row['scenario_slug']);
+    }
 
+    public function scenarioSlug(string $slug): array {
+        if ($slug === '') throw new RuntimeException('slug is required');
         return [
-            'scenario_slug' => $row['scenario_slug'],
-            'checkpoints' => Scenario::stagesBySlug($row['scenario_slug'])
+            'scenario_slug' => $slug,
+            'checkpoints' => Scenario::stagesBySlug($slug)
         ];
     }
 

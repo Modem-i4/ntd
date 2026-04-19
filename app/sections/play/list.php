@@ -18,7 +18,9 @@ $img_base = rtrim($IMG_BASE ?? '/assets/scenarios/', '/') . '/';
           <div class="relative h-40 w-full bg-gray-100 overflow-hidden">
             <img src="<?= !empty($s['img_placeholder']) ? '/assets/wip.webp' : ($IMG_BASE . $s['slug'] . '.webp'); ?>"
                  alt="<?= htmlspecialchars($s['title']) ?>"
-                 class="absolute inset-0 w-full h-full object-cover object-center block"/>
+                 class="absolute inset-0 w-full h-full object-cover block"
+                 style="object-position: <?= $s['feats']['img-offset'] ?? 'center' ?>"
+                 />
             <?php if (!empty($s['tags']) && is_array($s['tags'])): ?>
               <div class="absolute bottom-2 right-2 flex flex-wrap gap-1 justify-end">
                 <?php foreach ($s['tags'] as $tg): ?>
@@ -30,7 +32,7 @@ $img_base = rtrim($IMG_BASE ?? '/assets/scenarios/', '/') . '/';
             <?php endif; ?>
           </div>
           <div class="p-3">
-            <div class="font-bold leading-snug min-h-[44px]"><?= htmlspecialchars($s['title']) ?></div>
+            <div class="font-semibold leading-snug min-h-[44px]"><?= htmlspecialchars($s['title']) ?></div>
             <?php if (!empty($s['topic'])): ?>
               <div class="text-sm text-gray-600 mt-1 min-h-[80px] flex">
                 <div class="my-auto"><?= htmlspecialchars($s['topic']) ?></div>

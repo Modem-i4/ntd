@@ -20,15 +20,36 @@ require_once __DIR__ . '/../common/orangeBtn.php';
       </div>
 
       <div class="relative w-full max-w-[500px]">
-        <img
-          src="/assets/misc/mockup-desktop.webp"
-          alt="Інтерфейс гри «Нова традиція» на комп'ютері"
-          class=" h-auto filter w-[80%] xl:w-full"
-        />
+        <div class="relative w-[80%] xl:w-full">
+          <div
+            class="absolute z-0 w-[95%] h-[70%] overflow-hidden  bg-black cursor-pointer mt-[2.5%] ms-[2.5%]"
+            onpointerdown="const v=this.querySelector('video'); if(!v) return; v.paused ? v.play() : v.pause();"
+          >
+            <video
+              class="w-full h-full object-cover pointer-events-none"
+              src="/assets/misc/mockup-video.mp4"
+              poster="/assets/misc/mockup-img.png"
+              preload="none"
+              playsinline
+              autoplay
+              muted
+              loop
+              disablepictureinpicture
+              disableremoteplayback
+            ></video>
+          </div>
+
+          <img
+            src="/assets/misc/mockup-desktop.webp"
+            alt="Інтерфейс гри «Нова традиція» на комп'ютері"
+            class="relative z-0 w-full h-auto pointer-events-none select-none"
+          />
+        </div>
+
         <img
           src="/assets/misc/mockup-mobile.webp"
           alt="Інтерфейс гри «Нова традиція» на телефоні"
-          class="absolute -bottom-2 w-[68%] max-w-[400px] filter right-0 xl:-right-20 2xl:-right-32"
+          class="absolute -bottom-2 w-[68%] max-w-[400px] right-0 xl:-right-20 2xl:-right-32 pointer-events-none select-none"
         />
       </div>
     </div>

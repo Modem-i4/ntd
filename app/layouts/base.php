@@ -6,5 +6,6 @@
 ?>
 <?= $content ?>
 <?php require __DIR__ . '/../parts/footer.php'; ?>
+<?php require __DIR__ . '/../parts/snow.php'; ?>
 </body>
 </html>

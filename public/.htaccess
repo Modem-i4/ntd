@@ -9,8 +9,8 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 2) /game і /game/123456 -> внутрішньо на game/index.html (URL не змінюється)
-RewriteRule ^game(?:/(\d{6}))?/?$ game/index.html [L,NC]
+# /game, /game/123456, /game/some-slug -> внутрішньо на game/index.html
+RewriteRule ^game(?:/((?:\d{6})|(?:[a-z0-9][a-z0-9-]{1,63})))?/?$ game/index.html [L,NC]
 
 # 2a) API: усе під /api -> api.php (у корені public)
 RewriteRule ^api(?:/.*)?$ api.php [L,QSA,NC]

@@ -115,7 +115,7 @@
   const center = $('#center-stack');
   const guidelinesLink = $('.guidelines-link');
 
-  const SCENARIO_TITLES = { danylo:'Король Данило', vitovt:'Коронація Вітовта', orsha:'Битва під Оршею', orlyk:'Конституція Орлика', unr:'Від гетьманату до Директорії',khotyn:   'Хотинська битва 1621',kyiv:   'Ярмарок у Києві' };
+  const SCENARIO_TITLES = { danylo:'Король Данило', vitovt:'Коронація Вітовта', orsha:'Битва під Оршею', orlyk:'Конституція Орлика', unr:'Від гетьманату до Директорії',khotyn:   'Хотинська битва 1621',kyiv: 'Ярмарок у Києві', lesya: 'Леся Українка: Слова і свобода', plast: 'Вчися діяти: молодіжні організації' };
   const SCENERY_IMAGES = {
     danylo:{ left:'/assets/chars/danylo.webp', right:'/assets/chars/shvarn.webp' },
     vitovt:{ left:'/assets/chars/yagello.webp', right:'/assets/chars/vitovt.webp' },
@@ -124,6 +124,8 @@
     unr:  {  left:'/assets/chars/petl.webp',  right:'/assets/chars/skorop.webp' },
     khotyn:  {  left:'/assets/chars/kozak-gun.webp',  right:'/assets/chars/sahay.webp' },
     kyiv:  {  left:'/assets/chars/spy.webp',  right:'/assets/chars/viyt.webp' },
+    lesya: {  left:'/assets/chars/lesya.webp',  right:'/assets/chars/pchil.webp' },
+    plast: {  left:'/assets/chars/fran.webp',  right:'/assets/chars/tys.webp' },
   };
   const DEFAULT_IMAGES = { left:'/assets/default-left.jpg', right:'/assets/default-right.jpg' };
 
