@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../common/orangeBtn.php';
 ?>
 
-<section class="relative  md:gap-10 mx-auto px-4 lg:px-10 xl:px-20 py-10 md:py-24">
+<section class="relative  md:gap-10 mx-auto px-4 lg:px-10 xl:px-20 py-10 md:py-24" id="access">
   <h2 class="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-ermilov tracking-tight mb-12">
     ЯК ОТРИМАТИ ДОСТУП ДО ГРИ?  
   </h2>
@@ -55,11 +55,14 @@ require_once __DIR__ . '/../common/orangeBtn.php';
     </div>
 
     <div class="pt-12 max-w-xl mx-auto lg:ml-0 md:text-xl">
-        <p>Гра та всі матеріали є <b>безкоштовними</b>. Заповніть коротку <b>реєстраційну форму</b> і пройдіть  відеотренінг на 1 годину з найкращими практиками застосування гри.</p>
-        <p>Після проведення гри з учнями ви зможете отримати сертифікати підвищення кваліфікації та приємні подарунки від нас! Деталі у формі. </p>
-        
-        <a href="https://forms.gle/zj8XumuBV3uGmZeB6" target="_blank" class="flex justify-center md:justify-start pt-10">
-            <?= btn_orange('Реєстраційна форма', 'cursor-pointer transform transition-transform duration-200 hover:scale-105 py-6') ?>
+        <p>Гра та всі матеріали є <b>безкоштовними</b>. Перегляньте відео на <b>3 хвилини</b>, щоб бути готовими провести гру!</p>
+        <p class="mt-5">Ви також можете заповнити коротку форму та пройти <b>відеотренінг</b> на 1 годину з найкращими практиками застосування гри. Це дозволить вам отримати сертифікати підвищення кваліфікації та приємні подарунки від нас!</p>
+
+        <a href="https://youtu.be/3OnohcCTvaM" target="_blank" class="flex justify-center md:justify-start pt-10">
+            <?= btn_orange('Старт за 3 хвилини', 'cursor-pointer transform transition-transform duration-200 hover:scale-105 py-6') ?>
+        </a>
+        <a href="https://forms.gle/zj8XumuBV3uGmZeB6" target="_blank" class="flex justify-center md:justify-start pt-4">
+            <?= btn_orange('Підвищення кваліфікації', 'cursor-pointer transform transition-transform duration-200 hover:scale-105 py-6') ?> <!--  brightness-[1.23] saturate-[0.87] -->
         </a>
     </div>
   </div>

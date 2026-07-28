@@ -6,8 +6,8 @@ $categories = [
     'title' => 'Загальні',
     'items' => [
       'intro'   => ['title' => 'Вступ'],
-      'play'   => ['title' => 'Як зіграти?'],
-      'class'   => ['title' => 'Гра в класі'],
+      'class'   => ['title' => 'Як зіграти?'],
+      'play'   => ['title' => 'Поради з проведення'],
       'homework'   => ['title' => 'Гра як ДЗ'],
       'repeat'   => ['title' => 'Гра як повторення'],
       'reflection'   => ['title' => 'Рефлексія після гри'],
@@ -15,7 +15,7 @@ $categories = [
     ],
   ],
   'history' => [
-    'title' => 'Історія',
+    'title' => 'Сценарії: Історія',
     'items' => [
       'vitovt' => ['title' => 'Велике князівство Литовське'],
       'orsha' => ['title' => 'Битва під Оршею'],

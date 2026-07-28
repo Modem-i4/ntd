@@ -1,3 +1,5 @@
+<?php require_once __DIR__ . '/../common/orangeBtn.php'; ?>
+
 <section class="bg-white lg:py-20" id="results">
   <div class="max-w-[90rem] mx-auto px-4 lg:px-8">
     <!-- Ряд: колодязь + цифри + кружечки -->
@@ -25,7 +27,7 @@ function toPerc($stats,$param) { return (int) ($stats[$param]['improvement']*100
 
         <!-- блок з цифрами + підписом -->
         <div class="mt-6 lg:flex-1 lg:flex lg:flex-col lg:justify-center lg:items-center">
-          <div class="grid grid-cols-2 gap-x-12 gap-y-10 text-center px-12 lg:px-0">
+          <div class="grid grid-cols-2 gap-x-8 md:gap-x-12 gap-y-10 text-center px-8 md:px-12 lg:px-0">
             <div>
               <div class="text-4xl md:text-5xl lg:text-6xl font-ermilov"><?= $stats_num['sessions'] ?? 100 ?></div>
               <div class="mt-1 text-base md:text-lg leading-snug">
@@ -124,5 +126,10 @@ function toPerc($stats,$param) { return (int) ($stats[$param]['improvement']*100
     <p class="mt-6 text-center text-xs sm:text-sm text-gray-500 lg:hidden">
       статистика оновлюється щогодини автоматично
     </p>
+  </div>
+  <div class="flex justify-center transform transition-opacity opacity-70 hover:opacity-100 mt-3 xl:-mt-2">
+    <a href="/stats">
+      <?= btn_orange('Детальна статистика', 'cursor-pointer transform transition-transform duration-200 hover:scale-105 py-6 text-md! px-4! py-5!') ?>
+    </a>
   </div>
 </section>

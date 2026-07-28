@@ -117,8 +117,8 @@
         loadSessions(teacherV?.dataset?.fid || '');
       }
     } else {
-      rolePill.textContent = 'Учень';
-      hint.textContent = 'Перейдіть прямо до гри. Ви можете зіграти гру і не на уроці, обравши «Гра без коду».';
+      rolePill.textContent = 'Самостійно';
+      hint.textContent = 'Перейдіть прямо до гри та зіграйте самостійно!';
       show(hint, true);
       show(inputWrap, false); show(codeInput, false);
       show(confirmBtn, false); show(openGameBtn, true);

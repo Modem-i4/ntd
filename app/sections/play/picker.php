@@ -155,6 +155,7 @@ $scenarios = [
 ];
 
 $IMG_BASE    = '/assets/scenarios/';
+$scenario_slugs_json = htmlspecialchars(json_encode(array_column($scenarios, 'slug'), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8');
 $METHOD_BASE = '/guidelines/';$tag_titles = [
   'history'  => 'Історія',
   'hrom'     => 'Громадянська освіта',
@@ -175,40 +176,8 @@ $METHOD_BASE = '/guidelines/';$tag_titles = [
 <?php require __DIR__ . '/list.php'; ?>
 
 <section id="slider-section"
-  x-data="{
-    idx: 0,
-    loadingSlug: null,
-    err: null,
-    async startGame(slug) {
-      if (this.loadingSlug) return;
-      this.err = null;
-      this.loadingSlug = slug;
-      try {
-        const fid = await (window.__fidPromise || Promise.resolve(null)).catch(() => null);
-        const r = await fetch('/api/games/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ scenario_slug: slug, fid })
-        });
-        const ctype = r.headers.get('content-type') || '';
-        let code = '';
-        if (ctype.includes('application/json')) {
-          const j = await r.json();
-          code = j.code || j?.data?.code || j?.game?.code || '';
-        } else {
-          const t = await r.text();
-          const m = t.match(/\b\d{6}\b/);
-          code = m ? m[0] : '';
-        }
-        if (!r.ok || !code) throw new Error('Не вдалося створити сесію');
-        window.location.assign(`/play/${code}`);
-      } catch (e) {
-        this.err = e.message || 'Помилка створення сесії';
-      } finally {
-        this.loadingSlug = null;
-      }
-    }
-  }"
+  x-data='playScenarioPicker(<?= $scenario_slugs_json ?>)'
+  x-init="init()"
   class="mx-auto max-w-6xl px-4 py-8 grid gap-6 md:gap-8 md:grid-cols-2 overflow-x-hidden md:overflow-visible"
 >
   <div class="relative w-full">
@@ -234,7 +203,7 @@ $METHOD_BASE = '/guidelines/';$tag_titles = [
     </div>
   </div>
 
-  <div class="relative w-full min-h-[500px]">
+  <div class="relative w-full min-h-[500px]" id="description-section">
     <?php foreach ($scenarios as $i => $s): ?>
       <section
         x-show="idx===<?= $i ?> "
@@ -322,6 +291,117 @@ $METHOD_BASE = '/guidelines/';$tag_titles = [
   </div>
 </section>
 
+<script>
+  function playScenarioPicker(scenarioSlugs) {
+    return {
+      scenarioSlugs,
+      idx: 0,
+      loadingSlug: null,
+      err: null,
+      _hashApplied: false,
+      _swiperAttachInterval: null,
+      init() {
+        document.addEventListener('scenario:select', (e) => {
+          if (typeof e?.detail?.idx === 'number') this.idx = e.detail.idx;
+        });
+        this._applyHashSelection();
+      },
+      _getHashSlug() {
+        const hash = window.location.hash || '';
+        if (!hash.startsWith('#') || hash.length < 2) return '';
+        try {
+          return decodeURIComponent(hash.slice(1)).trim();
+        } catch (e) {
+          return hash.slice(1).trim();
+        }
+      },
+      _findScenarioIdxBySlug(slug) {
+        return this.scenarioSlugs.indexOf(slug);
+      },
+      _scrollToSelectionTarget() {
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        const targetId = isMobile ? 'description-section' : 'slider-section';
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        requestAnimationFrame(() => {
+          if (isMobile) {
+            const header = document.getElementById('site-header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const top = Math.max(0, window.scrollY + el.getBoundingClientRect().top - headerHeight - 100);
+            window.scrollTo({ top, behavior: 'smooth' });
+            return;
+          }
+          if (typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      },
+      _syncSwiper(idx) {
+        if (window.__scSwiper) {
+          window.__scSwiper.slideTo(idx, 0);
+          return;
+        }
+        if (this._swiperAttachInterval) return;
+        this._swiperAttachInterval = setInterval(() => {
+          if (!window.__scSwiper) return;
+          clearInterval(this._swiperAttachInterval);
+          this._swiperAttachInterval = null;
+          window.__scSwiper.slideTo(idx, 0);
+        }, 100);
+        setTimeout(() => {
+          if (!this._swiperAttachInterval) return;
+          clearInterval(this._swiperAttachInterval);
+          this._swiperAttachInterval = null;
+        }, 5000);
+      },
+      _applyHashSelection() {
+        if (this._hashApplied) return;
+        const slug = this._getHashSlug();
+        if (!slug) return;
+        const idx = this._findScenarioIdxBySlug(slug);
+        if (idx === -1) return;
+        this._hashApplied = true;
+        this.idx = idx;
+        document.dispatchEvent(new CustomEvent('scenario:active', { detail: { idx, slug } }));
+        this._syncSwiper(idx);
+        if (document.readyState === 'complete') {
+          this._scrollToSelectionTarget();
+        } else {
+          window.addEventListener('load', () => this._scrollToSelectionTarget(), { once: true });
+        }
+      },
+      async startGame(slug) {
+        if (this.loadingSlug) return;
+        this.err = null;
+        this.loadingSlug = slug;
+        try {
+          const fid = await (window.__fidPromise || Promise.resolve(null)).catch(() => null);
+          const r = await fetch('/api/games/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scenario_slug: slug, fid })
+          });
+          const ctype = r.headers.get('content-type') || '';
+          let code = '';
+          if (ctype.includes('application/json')) {
+            const j = await r.json();
+            code = j.code || j?.data?.code || j?.game?.code || '';
+          } else {
+            const t = await r.text();
+            const m = t.match(/\b\d{6}\b/);
+            code = m ? m[0] : '';
+          }
+          if (!r.ok || !code) throw new Error('Не вдалося створити сесію');
+          window.location.assign(`/play/${code}`);
+        } catch (e) {
+          this.err = e.message || 'Помилка створення сесії';
+        } finally {
+          this.loadingSlug = null;
+        }
+      }
+    };
+  }
+</script>
 <script>
   window.__fidPromise = (async () => {
     try {

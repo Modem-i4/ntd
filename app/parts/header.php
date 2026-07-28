@@ -12,7 +12,7 @@ $posClass = $fixed ? 'fixed inset-x-0 top-0 z-50' : 'relative';
       <nav class="hidden md:flex items-center gap-10 text-white font-semibold text-xl">
         <a href="/" class="hover:opacity-90">ГОЛОВНА</a>
         <a href="/play" class="hover:opacity-90">ДО ГРИ!</a>
-        <a href="/guidelines" class="hover:opacity-90">ПОРАДИ З ВИКОРИСТАННЯ</a>
+        <a href="/guidelines" class="hover:opacity-90">МЕТОДИЧНІ РЕКОМЕНДАЦІЇ</a>
         <!-- <a href="/training" class="hover:opacity-90">СТВОРЕННЯ СЦЕНАРІЮ</a> -->
       </nav>
       <button id="nav-toggle"
@@ -36,7 +36,7 @@ $posClass = $fixed ? 'fixed inset-x-0 top-0 z-50' : 'relative';
       <ul class="flex flex-col gap-2 text-white text-lg font-semibold">
         <li><a class="block py-2" href="/">ГОЛОВНА</a></li>
         <li><a class="block py-2" href="/play">ДО ГРИ!</a></li>
-        <li><a class="block py-2" href="/guidelines">ПОРАДИ З ВИКОРИСТАННЯ</a></li>
+        <li><a class="block py-2" href="/guidelines">МЕТОДИЧНІ РЕКОМЕНДАЦІЇ</a></li>
         <!-- <li><a class="block py-2" href="/training">СТВОРЕННЯ СЦЕНАРІЮ</a></li> -->
       </ul>
     </nav>

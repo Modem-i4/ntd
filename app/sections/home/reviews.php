@@ -30,7 +30,9 @@ $reviews = [
 $teacherHero = function(string $wrapClass = '', string $videoClass = '') { ?>
   <div class="<?= $wrapClass ?>">
     <video
-      class="<?= $videoClass ?>"
+      class="<?= $videoClass . ' ' . 
+        'bg-transparent rounded-full [clip-path:circle(50%_at_50%_50%)] transform-gpu [backface-visibility:hidden] 
+         will-change-transform [contain:paint]'?>"
       preload="none"
       playsinline
       autoplay
@@ -38,6 +40,7 @@ $teacherHero = function(string $wrapClass = '', string $videoClass = '') { ?>
       loop
       disablepictureinpicture
       disableremoteplayback
+      style="background: transparent; border-radius: 9999px; clip-path: circle(50% at 50% 50%); transform: translateZ(0); backface-visibility: hidden; will-change: transform; contain: paint;"
     >
       <source src="/assets/misc/teacher-animation.mp4" type="video/mp4" />
     </video>

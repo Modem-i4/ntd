@@ -1,22 +1,24 @@
 <?php
-require __DIR__ . '/../app/helpers.php';
-require __DIR__ . '/../app/api/db.php';
-require __DIR__ . '/../app/api/utils.php';
-require __DIR__ . '/../app/api/Controllers/SessionsController.php';
-require __DIR__ . '/../app/api/Controllers/UserController.php';
-require __DIR__ . '/../app/api/Controllers/StatsController.php';
-require __DIR__ . '/../app/api/Controllers/GameController.php';
-require __DIR__ . '/../app/api/Controllers/TrainingController.php';
-require __DIR__ . '/../app/api/Controllers/CertificatesController.php';
-require __DIR__ . '/../app/api/Controllers/LinksController.php';
-require __DIR__ . '/../app/Router.php';
+require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../app/api/db.php';
+require_once __DIR__ . '/../app/api/utils.php';
+require_once __DIR__ . '/../app/api/Controllers/SessionsController.php';
+require_once __DIR__ . '/../app/api/Controllers/UserController.php';
+require_once __DIR__ . '/../app/api/Controllers/StatsController.php';
+require_once __DIR__ . '/../app/api/Controllers/FullStatsController.php';
+require_once __DIR__ . '/../app/api/Controllers/GameController.php';
+require_once __DIR__ . '/../app/api/Controllers/TrainingController.php';
+require_once __DIR__ . '/../app/api/Controllers/CertificatesController.php';
+require_once __DIR__ . '/../app/api/Controllers/LinksController.php';
+require_once __DIR__ . '/../app/Router.php';
 
-require __DIR__ . '/../app/api/Controllers/ScenarioStatsController.php';
+require_once __DIR__ . '/../app/api/Controllers/ScenarioStatsController.php';
 
 $pdo           = db();
 $sessionsCtrl  = new SessionsController($pdo);
 $usersCtrl     = new UserController($pdo);
 $statsCtrl     = new StatsController($pdo);
+$fullStatsCtrl     = new FullStatsController($pdo);
 $LithStatsCtrl     = new ScenarioStatsController($pdo,['vitovt','orsha','khotyn','danylo','kyiv']);
 $DanStatsCtrl     = new ScenarioStatsController($pdo,['orlyk','unr','lesya','plast']);
 $trainingCtrl  = new TrainingController($pdo);
@@ -38,9 +40,11 @@ $routes = [
     '/api/stats/lith'              => [$LithStatsCtrl, 'index'],
     '/api/stats/dan'              => [$DanStatsCtrl, 'index'],
     '/api/stats'                  => [$statsCtrl, 'index'],
-    '/api/stats/detailed'           => [$statsCtrl, 'detailed'],
     '/api/stats/cached'           => [$statsCtrl, 'cached'],
     '/api/stats/makeCache'        => [$statsCtrl, 'makeCache'],
+    '/api/stats/detailed'           => [$fullStatsCtrl, 'index'], // deprecated: [$statsCtrl, 'detailed'],
+    '/api/stats/detailed/cached'    => [$fullStatsCtrl, 'cached'],
+    '/api/stats/detailed/makeCache' => [$fullStatsCtrl, 'makeCache'],
     '/api/training'               => [$trainingCtrl, 'index'],
     '/api/guidelines'             => [$trainingCtrl, 'index'],
     '/api/games/stats'            => [$gameCtrl, 'stats'],

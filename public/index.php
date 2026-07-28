@@ -16,11 +16,12 @@ if (str_starts_with($uri, '/api')) {
 $routes = [
   '/'              => ['title' => 'ГО «Нова Традиція»',         'view' => __DIR__ . '/../app/views/home.php', 
         'data' => fn () => [ 'stats' => (new StatsController(db()))->cached(), ],],
-  '/about'         => ['title' => 'About',                       'view' => __DIR__ . '/../app/views/about.php'],
+  //'/about'         => ['title' => 'About',                       'view' => __DIR__ . '/../app/views/about.php'],
   '/trainingLith'      => ['title' => 'Тренінг для школи',           'view' => __DIR__ . '/../app/views/trainingLith.php'],
   '/trainingLith/{chapter}'      => ['title' => 'Тренінг для школи',           'view' => __DIR__ . '/../app/views/trainingLith.php'],
   '/training'      => ['title' => 'Тренінг для школи',           'view' => __DIR__ . '/../app/views/trainingPol.php'],
   '/training/{chapter}'      => ['title' => 'Тренінг для школи',           'view' => __DIR__ . '/../app/views/trainingPol.php'],
+  '/stats'         => ['title' => 'Статистика',                       'view' => __DIR__ . '/../app/views/stats.php'],
   '/play'      => ['title' => 'Створити гру',                'view' => __DIR__ . '/../app/views/play.php','header_fixed'  => false],
   '/play/{id}' => ['title' => 'Сесія',                       'view' => __DIR__ . '/../app/views/session.php'],
   '/guidelines'    => ['title' => 'Методичні рекомендації',      'view' => __DIR__ . '/../app/views/guidelines.php'],

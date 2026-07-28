@@ -63,12 +63,14 @@ function scList(scenarios, imgBase) {
     activeIdx: 0,
     open: false,
     _sw: null,
+    _hashApplied: false,
     init() {
       const attach = () => {
         if (window.__scSwiper && !this._sw) {
           this._sw = window.__scSwiper;
           this.activeIdx = Number(this._sw.realIndex || 0);
           this._sw.on('realIndexChange', (s) => { this.activeIdx = s.realIndex; });
+          this._applyHashSelection();
         }
       };
       attach();
@@ -87,6 +89,34 @@ function scList(scenarios, imgBase) {
       window.addEventListener('resize', setCollapsed);
       if (document.readyState === 'complete') setCollapsed(); else window.addEventListener('load', setCollapsed);
       setCollapsed();
+      this._applyHashSelection();
+    },
+    _getHashSlug() {
+      const hash = window.location.hash || '';
+      if (!hash.startsWith('#') || hash.length < 2) return '';
+      try {
+        return decodeURIComponent(hash.slice(1)).trim();
+      } catch (e) {
+        return hash.slice(1).trim();
+      }
+    },
+    _findScenarioIdxBySlug(slug) {
+      return this.scenarios.findIndex((scenario) => scenario.slug === slug);
+    },
+    _expand() {
+      const acc = this.$refs.acc;
+      this.open = true;
+      if (acc) acc.style.maxHeight = '';
+    },
+    _applyHashSelection() {
+      if (this._hashApplied) return;
+      const slug = this._getHashSlug();
+      if (!slug) return;
+      const idx = this._findScenarioIdxBySlug(slug);
+      if (idx === -1) return;
+      this._hashApplied = true;
+      this._expand();
+      this.select(idx, { scroll: false });
     },
     toggle() {
       const acc = this.$refs.acc;
@@ -135,18 +165,29 @@ function scList(scenarios, imgBase) {
       const height = Math.max(0, bottom - firstTop);
       return Math.ceil(height + padY);
     },
-    _scrollToSliderSection() {
-      const el = document.getElementById('slider-section');
-      if (el && typeof el.scrollIntoView === 'function') {
+    _scrollToSelectionTarget() {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      const targetId = isMobile ? 'description-section' : 'slider-section';
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      if (isMobile) {
+        const header = document.getElementById('site-header');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const top = Math.max(0, window.scrollY + el.getBoundingClientRect().top - headerHeight);
+        window.scrollTo({ top, behavior: 'smooth' });
+        return;
+      }
+      if (typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     },
-    select(idx) {
+    select(idx, options = {}) {
+      const { scroll = true } = options;
       this.activeIdx = idx;
       if (window.__scSwiper) window.__scSwiper.slideTo(idx);
       const slug = this.scenarios[idx].slug;
       document.dispatchEvent(new CustomEvent('scenario:select', { detail: { idx, slug } }));
-      this._scrollToSliderSection();
+      if (scroll) this._scrollToSelectionTarget();
     },
     tileClass(i) {
       return (this.activeIdx === i) ? 'ring-2 ring-orange-500' : 'ring-1 ring-black/10';
