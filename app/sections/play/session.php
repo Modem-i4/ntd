@@ -142,6 +142,10 @@
     const tick = () => {
       if (!startedAt) return setWaiting();
       const s = Math.max(0, Math.floor((Date.now() - startedAt.getTime())/1000));
+      if (s > 3600) {
+        elTime.textContent = 'понад 1 год.';
+        return;
+      }
       const hh = Math.floor(s/3600), mm = Math.floor((s%3600)/60), ss = s%60;
       elTime.textContent = `${pad(hh)}:${pad(mm)}:${pad(ss)}`;
     };
@@ -228,7 +232,7 @@
     elPlayers.textContent = data.players_count ?? 0;
 
     if (data.started_at) {
-      const d = new Date(String(data.started_at).replace(' ','T'));
+      const d = new Date(String(data.started_at).replace(' ','T') + 'Z');
       if (!isNaN(d) && (!startedAt || d.getTime() !== startedAt.getTime())) { startedAt = d; startTicker(); }
     } else {
       startedAt = null;

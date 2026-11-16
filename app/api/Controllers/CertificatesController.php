@@ -218,14 +218,61 @@ class CertificatesController
 
         if (is_file($file) && filesize($file) > 0) {
             $c = @file_get_contents($file);
-            if ($c !== false) return $c;
+            if ($c !== false) {
+                $normalized = $this->normalizeQrSvg($c);
+                if ($normalized !== $c) { @file_put_contents($file, $normalized); }
+                return $normalized;
+            }
         }
 
         $url = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=0&format=svg&data=' . rawurlencode($payload);
         $svg = @file_get_contents($url) ?: '';
+        $svg = $this->normalizeQrSvg($svg);
 
         if ($svg !== '') { @file_put_contents($file, $svg); }
         return $svg;
+    }
+
+    /**
+     * qrserver.com now uses a small module-based viewBox (for example 25x25)
+     * while keeping width/height at 280. The SVG renderer bundled with this
+     * Dompdf version does not scale that viewBox correctly, producing a tiny QR.
+     * Convert it to the pixel-coordinate format returned by the old API.
+     */
+    private function normalizeQrSvg(string $svg): string
+    {
+        if ($svg === '' || !preg_match('~<svg\b[^>]*>~i', $svg, $rootMatch)) {
+            return $svg;
+        }
+
+        $root = $rootMatch[0];
+        if (!preg_match('~\bwidth=["\']([0-9]+(?:\.[0-9]+)?)["\']~i', $root, $widthMatch)
+            || !preg_match('~\bheight=["\']([0-9]+(?:\.[0-9]+)?)["\']~i', $root, $heightMatch)
+            || !preg_match('~\bviewBox=["\']\s*0(?:\.0+)?[\s,]+0(?:\.0+)?[\s,]+([0-9]+(?:\.[0-9]+)?)[\s,]+([0-9]+(?:\.[0-9]+)?)\s*["\']~i', $root, $viewBoxMatch)) {
+            return $svg;
+        }
+
+        $width = (float)$widthMatch[1];
+        $height = (float)$heightMatch[1];
+        $viewBoxWidth = (float)$viewBoxMatch[1];
+        $viewBoxHeight = (float)$viewBoxMatch[2];
+        if ($viewBoxWidth <= 0 || $viewBoxHeight <= 0
+            || ($viewBoxWidth >= $width && $viewBoxHeight >= $height)) {
+            return $svg;
+        }
+
+        // Use whole pixels per QR module, matching the old generator output.
+        $scale = max(1, floor(min($width / $viewBoxWidth, $height / $viewBoxHeight)));
+        $pixelWidth = $viewBoxWidth * $scale;
+        $pixelHeight = $viewBoxHeight * $scale;
+
+        $newRoot = preg_replace('~\s+viewBox=["\'][^"\']*["\']~i', '', $root, 1);
+        $newRoot = preg_replace('~\bwidth=["\'][^"\']*["\']~i', 'width="' . $pixelWidth . '"', $newRoot, 1);
+        $newRoot = preg_replace('~\bheight=["\'][^"\']*["\']~i', 'height="' . $pixelHeight . '"', $newRoot, 1);
+        if ($newRoot === null) { return $svg; }
+
+        $svg = substr_replace($svg, $newRoot . '<g transform="scale(' . $scale . ')">', strpos($svg, $root), strlen($root));
+        return preg_replace('~</svg>\s*$~i', '</g></svg>', $svg, 1) ?? $svg;
     }
 
     private function buildHtml(array $cert, string $pageTitle): string
